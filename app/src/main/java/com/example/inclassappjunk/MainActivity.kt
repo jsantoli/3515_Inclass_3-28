@@ -9,10 +9,8 @@ import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import androidx.lifecycle.Lifecycle.Event.downTo
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+
 lateinit var timerTextView: TextView
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,7 +20,7 @@ class MainActivity : AppCompatActivity() {
         timerTextView = findViewById(R.id.timerTextView)
 
 
-        val scope = CoroutineScope(Job() + Dispatchers.Main)
+        val scope = CoroutineScope(Job() + Dispatchers.Default)
 
         val button: Button = findViewById(R.id.button)
 
@@ -37,10 +35,13 @@ class MainActivity : AppCompatActivity() {
     suspend fun countdownTimer(){
         repeat(100) {
             (100 - it).toString().run {
-                timerTextView.text = this
+                withContext(Dispatchers.Main){
+                    timerTextView.text = this@run
+                }
+
                 Log.d("Countdown", this)
             }
-            Thread.sleep(1000)
+            delay(1000)
 
         }
     }
